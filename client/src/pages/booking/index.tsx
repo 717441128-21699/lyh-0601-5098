@@ -79,7 +79,7 @@ const BookingPage: React.FC = () => {
           break;
         case 'pending':
           Taro.navigateTo({
-            url: `/pages/course-booking/index?courseId=${course.id}`
+            url: `/pages/course-detail/index?id=${course.id}`
           });
           break;
         case 'completed':

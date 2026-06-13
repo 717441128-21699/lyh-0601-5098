@@ -80,7 +80,7 @@ const EffectUploadPage: React.FC = () => {
     setRatingInput(val);
     const num = parseFloat(val);
     if (!isNaN(num) && num >= 0 && num <= 5) {
-      setRating(Math.round(num * 10) / 10);
+      setRating(Math.round(num * 100) / 100);
     }
   };
 
@@ -88,9 +88,9 @@ const EffectUploadPage: React.FC = () => {
     let num = parseFloat(ratingInput);
     if (isNaN(num) || num < 0) num = 0;
     if (num > 5) num = 5;
-    num = Math.round(num * 10) / 10;
+    num = Math.round(num * 100) / 100;
     setRating(num);
-    setRatingInput(num.toFixed(1));
+    setRatingInput(String(num));
   };
 
   const handleStarChange = (newRating: number) => {
@@ -98,7 +98,7 @@ const EffectUploadPage: React.FC = () => {
     setRatingInput(newRating.toFixed(1));
   };
 
-  const canSubmit = rating > 0 && behaviorImproved !== null && description.trim().length > 0;
+  const canSubmit = rating >= 0 && behaviorImproved !== null && description.trim().length > 0;
 
   const handleSubmit = async () => {
     if (!canSubmit || !course || submitting) return;
@@ -241,20 +241,21 @@ const EffectUploadPage: React.FC = () => {
             />
             <View className={styles.ratingInputRow}>
               <Text className={styles.ratingValue}>
-                {rating >= 4.5 ? '非常满意' : rating >= 3.5 ? '满意' : rating >= 2.5 ? '一般' : rating >= 1.5 ? '不满意' : '非常不满意'}
+                {rating >= 4.5 ? '非常满意' : rating >= 3.5 ? '满意' : rating >= 2.5 ? '一般' : rating >= 1.5 ? '不满意' : rating >= 0.5 ? '非常不满意' : '未评分'}
               </Text>
               <View className={styles.ratingInputWrapper}>
                 <Input
                   className={styles.ratingInput}
                   type="digit"
                   value={ratingInput}
+                  placeholder="0-5"
                   onInput={handleRatingInputChange}
                   onBlur={handleRatingInputBlur}
                 />
-                <Text className={styles.ratingInputUnit}>分</Text>
+                <Text className={styles.ratingInputUnit}>/ 5 分</Text>
               </View>
             </View>
-            <Text className={styles.ratingHint}>可手动输入0-5之间的分数，精确到0.1</Text>
+            <Text className={styles.ratingHint}>可输入 0-5 之间的任意分数，如 0、0.3、4.7 等</Text>
           </View>
         </View>
 

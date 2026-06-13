@@ -397,8 +397,33 @@ export const orderApi = {
   getOrderByCourseId: async (courseId: string): Promise<Order> => {
     if (USE_MOCK) {
       await delay(200);
-      const order = mockOrders.find((o) => o.courseId === courseId);
-      if (!order) throw new Error('Order not found');
+      let order = mockOrders.find((o) => o.courseId === courseId);
+      if (!order) {
+        const course = mockBookings.find((c) => c.id === courseId);
+        if (!course) throw new Error('Course not found');
+        const orderId = `o${Date.now()}`;
+        const ticketCode = course.ticketCode || `TK${Date.now()}`;
+        order = {
+          id: orderId,
+          orderNo: `ORD${Date.now()}`,
+          userId: 'u1',
+          courseId,
+          amount: course.price,
+          status: 'pending',
+          ticket: {
+            id: `t${Date.now()}`,
+            orderId,
+            code: ticketCode,
+            qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticketCode}`,
+            validFrom: new Date().toISOString(),
+            validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+            used: false
+          },
+          createdAt: new Date().toISOString()
+        } as Order;
+        mockOrders.unshift(order);
+        course.orderId = orderId;
+      }
       return order;
     }
     return get<Order>(`/orders/by-course/${courseId}`);
@@ -428,11 +453,14 @@ export const userApi = {
 
       const trainer = mockTrainers.find((t) => t.id === data.trainerId);
       if (trainer) {
-        trainer.reviewCount = (trainer.reviewCount || 0) + 1;
+        const oldCount = trainer.reviewCount || 0;
+        const newCount = oldCount + 1;
         const oldRating = trainer.starRating || 0;
-        const oldCount = trainer.reviewCount - 1;
-        trainer.starRating = Math.round(((oldRating * oldCount + (data.rating || 5)) / trainer.reviewCount) * 10) / 10;
-        trainer.satisfactionRate = Math.min(100, Math.round(((trainer.satisfactionRate || 90) * oldCount + ((data.rating || 5) >= 4 ? 100 : 0)) / trainer.reviewCount));
+        const newRating = data.rating ?? 5;
+        trainer.reviewCount = newCount;
+        trainer.starRating = Math.round(((oldRating * oldCount + newRating) / newCount) * 100) / 100;
+        const oldSatisfaction = trainer.satisfactionRate ?? 90;
+        trainer.satisfactionRate = Math.min(100, Math.round((oldSatisfaction * oldCount + (newRating >= 4 ? 100 : 0)) / newCount));
       }
 
       const newReview: TrainerReview = {
@@ -441,7 +469,7 @@ export const userApi = {
         userName: mockUser.nickname || '用户',
         userAvatar: mockUser.avatar || '',
         trainerId: data.trainerId || '',
-        rating: data.rating || 5,
+        rating: data.rating ?? 5,
         content: data.description || '',
         createdAt: new Date().toISOString(),
         courseType: '一对一课程',
@@ -449,7 +477,8 @@ export const userApi = {
       };
       mockTrainerReviews.unshift(newReview);
 
-      const pointsEarned = (data.rating || 5) >= 4 ? 100 : 50;
+      const newRating = data.rating ?? 5;
+      const pointsEarned = newRating >= 4 ? 100 : newRating >= 2 ? 50 : 20;
       mockUser.memberPoints = (mockUser.memberPoints || 0) + pointsEarned;
 
       const progress = mockUser.memberUpgradeProgress;

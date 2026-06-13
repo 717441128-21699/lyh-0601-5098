@@ -139,7 +139,7 @@ const CourseDetailPage: React.FC = () => {
             try {
               await orderApi.payOrder(order.id, { paymentMethod: 'wechat' });
               Taro.showToast({ title: '支付成功', icon: 'success' });
-              loadCourseDetail();
+              await loadCourseDetail();
             } catch (payError) {
               console.error('[CourseDetail] pay error:', payError);
               Taro.showToast({ title: '支付失败，请重试', icon: 'none' });

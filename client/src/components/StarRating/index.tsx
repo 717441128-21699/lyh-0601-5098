@@ -10,6 +10,7 @@ interface StarRatingProps {
   interactive?: boolean;
   onChange?: (rating: number) => void;
   precision?: 0.5 | 1;
+  decimalPlaces?: number;
 }
 
 const StarRating: React.FC<StarRatingProps> = ({
@@ -19,11 +20,11 @@ const StarRating: React.FC<StarRatingProps> = ({
   size = 'medium',
   interactive = false,
   onChange,
-  precision = 1
+  precision = 1,
+  decimalPlaces = 1
 }) => {
   const fullStars = Math.floor(rating);
-  const hasHalfStar = rating % 1 >= 0.5;
-  const remainder = rating % 1;
+  const remainder = rating - fullStars;
 
   const handleStarClick = (index: number, isHalf: boolean) => {
     if (!interactive || !onChange) return;
@@ -37,6 +38,7 @@ const StarRating: React.FC<StarRatingProps> = ({
   };
 
   const getStarWidth = (index: number): string => {
+    if (rating <= 0) return '0%';
     if (index < fullStars) return '100%';
     if (index === fullStars && remainder > 0) {
       return `${remainder * 100}%`;
@@ -59,7 +61,7 @@ const StarRating: React.FC<StarRatingProps> = ({
             ★
           </Text>
           <View
-            className={`${styles.starFill}`}
+            className={styles.starFill}
             style={{ width: getStarWidth(i) }}
           >
             <Text className={`${styles.star} ${styles.fullStar} ${sizeClass}`}>
@@ -86,7 +88,7 @@ const StarRating: React.FC<StarRatingProps> = ({
       <View className={styles.stars}>{renderStars()}</View>
       {showText && (
         <Text className={`${styles.ratingText} ${sizeClass}`}>
-          {rating.toFixed(1)}
+          {rating.toFixed(decimalPlaces)}
         </Text>
       )}
     </View>
