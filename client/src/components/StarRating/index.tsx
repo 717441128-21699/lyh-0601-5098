@@ -6,34 +6,76 @@ interface StarRatingProps {
   rating: number;
   maxRating?: number;
   showText?: boolean;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | number;
+  interactive?: boolean;
+  onChange?: (rating: number) => void;
+  precision?: 0.5 | 1;
 }
 
 const StarRating: React.FC<StarRatingProps> = ({
   rating,
   maxRating = 5,
   showText = true,
-  size = 'medium'
+  size = 'medium',
+  interactive = false,
+  onChange,
+  precision = 1
 }) => {
   const fullStars = Math.floor(rating);
   const hasHalfStar = rating % 1 >= 0.5;
+  const remainder = rating % 1;
+
+  const handleStarClick = (index: number, isHalf: boolean) => {
+    if (!interactive || !onChange) return;
+    let newRating = isHalf ? index + 0.5 : index + 1;
+    if (precision === 1) {
+      newRating = index + 1;
+    }
+    if (newRating < 0.5) newRating = 0.5;
+    if (newRating > maxRating) newRating = maxRating;
+    onChange(newRating);
+  };
+
+  const getStarWidth = (index: number): string => {
+    if (index < fullStars) return '100%';
+    if (index === fullStars && remainder > 0) {
+      return `${remainder * 100}%`;
+    }
+    return '0%';
+  };
+
+  const sizeClass = typeof size === 'string' ? styles[size] : '';
 
   const renderStars = () => {
     const stars = [];
     for (let i = 0; i < maxRating; i++) {
-      let starClass = styles.emptyStar;
-      if (i < fullStars) {
-        starClass = styles.fullStar;
-      } else if (i === fullStars && hasHalfStar) {
-        starClass = styles.halfStar;
-      }
       stars.push(
-        <Text
+        <View
           key={i}
-          className={`${styles.star} ${starClass} ${styles[size]}`}
+          className={`${styles.starWrapper} ${interactive ? styles.clickable : ''}`}
+          onClick={() => handleStarClick(i, false)}
         >
-          ★
-        </Text>
+          <Text className={`${styles.star} ${styles.emptyStar} ${sizeClass}`}>
+            ★
+          </Text>
+          <View
+            className={`${styles.starFill}`}
+            style={{ width: getStarWidth(i) }}
+          >
+            <Text className={`${styles.star} ${styles.fullStar} ${sizeClass}`}>
+              ★
+            </Text>
+          </View>
+          {interactive && precision === 0.5 && (
+            <View
+              className={styles.halfHitArea}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStarClick(i, true);
+              }}
+            />
+          )}
+        </View>
       );
     }
     return stars;
@@ -43,7 +85,7 @@ const StarRating: React.FC<StarRatingProps> = ({
     <View className={styles.container}>
       <View className={styles.stars}>{renderStars()}</View>
       {showText && (
-        <Text className={`${styles.ratingText} ${styles[size]}`}>
+        <Text className={`${styles.ratingText} ${sizeClass}`}>
           {rating.toFixed(1)}
         </Text>
       )}

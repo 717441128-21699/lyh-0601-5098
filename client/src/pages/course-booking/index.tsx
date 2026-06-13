@@ -113,6 +113,12 @@ const CourseBookingPage: React.FC = () => {
 
     setSubmitting(true);
     try {
+      const conflictResult = await courseApi.checkConflict(trainer!.id, date, selectedSlot!.id);
+      if (conflictResult.hasConflict) {
+        Taro.showToast({ title: conflictResult.message, icon: 'none' });
+        return;
+      }
+
       const courseData = {
         trainerId: trainer!.id,
         trainerName: trainer!.name,
@@ -131,29 +137,23 @@ const CourseBookingPage: React.FC = () => {
         notes
       };
 
-      const conflictResult = await courseApi.checkConflict(trainer!.id, date, selectedSlot!.id);
-      if (conflictResult.hasConflict) {
-        Taro.showToast({ title: conflictResult.message, icon: 'none' });
-        return;
-      }
-
-      const course = await courseApi.createCourse(courseData);
-      const order = await orderApi.createOrder({
-        courseId: course.id,
-        amount: totalPrice,
-        description: `${trainer!.name} - ${CourseTypeLabels[courseType]}课程`
-      });
+      const { course, order } = await courseApi.createCourse(courseData);
 
       Taro.showModal({
         title: '确认支付',
-        content: `需要支付 ¥${totalPrice}`,
+        content: `${trainer!.name} - ${CourseTypeLabels[courseType]}课程\n需支付 ¥${totalPrice}`,
         success: async (res) => {
           if (res.confirm) {
-            await orderApi.payOrder(order.id, { paymentMethod: 'wechat' });
-            Taro.showToast({ title: '预约成功', icon: 'success' });
-            setTimeout(() => {
-              Taro.redirectTo({ url: `/pages/course-detail/index?id=${course.id}` });
-            }, 1500);
+            try {
+              await orderApi.payOrder(order.id, { paymentMethod: 'wechat' });
+              Taro.showToast({ title: '支付成功', icon: 'success' });
+              setTimeout(() => {
+                Taro.redirectTo({ url: `/pages/course-detail/index?id=${course.id}` });
+              }, 1500);
+            } catch (payError) {
+              console.error('[CourseBooking] pay error:', payError);
+              Taro.showToast({ title: '支付失败，请稍后重试', icon: 'none' });
+            }
           } else {
             Taro.redirectTo({ url: `/pages/course-detail/index?id=${course.id}` });
           }

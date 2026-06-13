@@ -16,6 +16,7 @@ export interface Course {
   location?: string;
   meetingUrl?: string;
   ticketCode: string;
+  orderId?: string;
   checkInTime?: string;
   trainingRecord?: TrainingRecord;
   homework?: Homework;

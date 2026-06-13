@@ -7,9 +7,18 @@ import {
   User,
   TrainerReview,
   EffectUpload,
-  DashboardStats
+  DashboardStats,
+  Homework
 } from '@/types';
-import { mockPets, mockTrainers, mockBookings, mockUser, mockTrainerReviews, mockDashboardStats } from '@/data';
+import {
+  mockPets,
+  mockTrainers,
+  mockBookings,
+  mockOrders,
+  mockUser,
+  mockTrainerReviews,
+  mockDashboardStats
+} from '@/data';
 
 const USE_MOCK = true;
 
@@ -166,21 +175,68 @@ export const courseApi = {
     return get<Course>(`/courses/${id}`);
   },
 
-  createCourse: async (data: Partial<Course>): Promise<Course> => {
+  checkConflict: async (
+    trainerId: string,
+    date: string,
+    slotId: string
+  ): Promise<{ hasConflict: boolean; message?: string }> => {
+    if (USE_MOCK) {
+      await delay(100);
+      const trainer = mockTrainers.find((t) => t.id === trainerId);
+      if (!trainer) return { hasConflict: true, message: '训导师不存在' };
+      const schedule = trainer.schedule.find((s) => s.date === date);
+      if (!schedule) return { hasConflict: true, message: '该日期无排班' };
+      const slot = schedule.timeSlots.find((s) => s.id === slotId);
+      if (!slot || !slot.available) {
+        return { hasConflict: true, message: '该时段已被预约，请选择其他时段' };
+      }
+      return { hasConflict: false };
+    }
+    return get(`/courses/conflict`, { trainerId, date, slotId });
+  },
+
+  createCourse: async (data: Partial<Course>): Promise<{ course: Course; order: Order }> => {
     if (USE_MOCK) {
       await delay(300);
+      const courseId = `c${Date.now()}`;
+      const orderId = `o${Date.now()}`;
+      const ticketCode = `TK${Date.now()}`;
+
       const newCourse: Course = {
         ...data,
-        id: `c${Date.now()}`,
-        ticketCode: `TK${Date.now()}`,
+        id: courseId,
+        ticketCode,
+        orderId,
+        status: 'pending',
         ownerConfirmed: false,
         settled: false,
         createdAt: new Date().toISOString()
       } as Course;
       mockBookings.unshift(newCourse);
-      return newCourse;
+
+      const newOrder: Order = {
+        id: orderId,
+        orderNo: `ORD${Date.now()}`,
+        userId: 'u1',
+        courseId,
+        amount: data.price || 0,
+        status: 'pending',
+        ticket: {
+          id: `t${Date.now()}`,
+          orderId,
+          code: ticketCode,
+          qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticketCode}`,
+          validFrom: new Date().toISOString(),
+          validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          used: false
+        },
+        createdAt: new Date().toISOString()
+      } as Order;
+      mockOrders.unshift(newOrder);
+
+      return { course: newCourse, order: newOrder };
     }
-    return post<Course>('/courses', data);
+    return post<{ course: Course; order: Order }>('/courses', data);
   },
 
   checkIn: async (courseId: string): Promise<Course> => {
@@ -202,6 +258,24 @@ export const courseApi = {
       if (!course) throw new Error('Course not found');
       course.ownerConfirmed = true;
       course.settled = true;
+      course.status = 'completed';
+
+      const trainer = mockTrainers.find((t) => t.id === course.trainerId);
+      if (trainer) {
+        trainer.courseCount = (trainer.courseCount || 0) + 1;
+      }
+
+      mockUser.totalCourses = (mockUser.totalCourses || 0) + 1;
+      mockUser.totalSpent = (mockUser.totalSpent || 0) + course.price;
+      const progress = mockUser.memberUpgradeProgress;
+      if (progress) {
+        progress.coursesCompleted = mockUser.totalCourses;
+        progress.amountSpent = mockUser.totalSpent;
+        const courseProgress = Math.min(100, (progress.coursesCompleted / progress.coursesNeeded) * 100);
+        const amountProgress = Math.min(100, (progress.amountSpent / progress.amountNeeded) * 100);
+        progress.progressPercent = Math.round(Math.max(courseProgress, amountProgress));
+      }
+
       return course;
     }
     return post<Course>(`/courses/${courseId}/confirm`);
@@ -216,17 +290,31 @@ export const courseApi = {
       const course = mockBookings.find((c) => c.id === courseId);
       if (!course) throw new Error('Course not found');
       course.trainingRecord = data;
+      course.status = 'completed';
       return course;
     }
     return post<Course>(`/courses/${courseId}/training-record`, data);
   },
 
-  submitHomework: async (courseId: string, data: any): Promise<Course> => {
+  submitHomework: async (courseId: string, data: { tasks: { id: string; completed: boolean }[] }): Promise<Course> => {
     if (USE_MOCK) {
       await delay(300);
       const course = mockBookings.find((c) => c.id === courseId);
-      if (!course) throw new Error('Course not found');
-      course.homework = data;
+      if (!course || !course.homework) throw new Error('Course or homework not found');
+
+      data.tasks.forEach((taskUpdate) => {
+        const task = course!.homework!.tasks.find((t) => t.id === taskUpdate.id);
+        if (task) {
+          task.completed = taskUpdate.completed;
+        }
+      });
+
+      const allCompleted = course.homework.tasks.every((t) => t.completed);
+      if (allCompleted) {
+        course.homework.completed = true;
+        course.homework.completedAt = new Date().toISOString();
+      }
+
       return course;
     }
     return post<Course>(`/courses/${courseId}/homework`, data);
@@ -237,77 +325,83 @@ export const orderApi = {
   createOrder: async (data: Partial<Order>): Promise<Order> => {
     if (USE_MOCK) {
       await delay(300);
+      const orderId = `o${Date.now()}`;
+      const ticketCode = data.courseId ? `TK${data.courseId}` : `TK${Date.now()}`;
       const newOrder: Order = {
         ...data,
-        id: String(Date.now()),
+        id: orderId,
         orderNo: `ORD${Date.now()}`,
         status: 'pending',
         ticket: {
-          id: String(Date.now()),
-          orderId: String(Date.now()),
-          code: `TK${Date.now()}`,
-          qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TK${Date.now()}`,
+          id: `t${Date.now()}`,
+          orderId,
+          code: ticketCode,
+          qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${ticketCode}`,
           validFrom: new Date().toISOString(),
           validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           used: false
         },
         createdAt: new Date().toISOString()
       } as Order;
+      mockOrders.unshift(newOrder);
       return newOrder;
     }
     return post<Order>('/orders', data);
   },
 
-  payOrder: async (orderId: string, method: string): Promise<Order> => {
+  payOrder: async (orderId: string, data: { paymentMethod: string }): Promise<{ order: Order; course: Course }> => {
     if (USE_MOCK) {
       await delay(500);
-      return {
-        id: orderId,
-        orderNo: `ORD${orderId}`,
-        userId: 'u1',
-        courseId: 'c1',
-        amount: 399,
-        status: 'paid',
-        paymentMethod: method,
-        paidAt: new Date().toISOString(),
-        ticket: {
-          id: `t${orderId}`,
-          orderId: orderId,
-          code: `TK${orderId}`,
-          qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TK${orderId}`,
-          validFrom: new Date().toISOString(),
-          validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          used: false
-        },
-        createdAt: new Date().toISOString()
-      };
+      const order = mockOrders.find((o) => o.id === orderId);
+      if (!order) throw new Error('Order not found');
+
+      order.status = 'paid';
+      order.paymentMethod = data.paymentMethod;
+      order.paidAt = new Date().toISOString();
+      if (order.ticket) {
+        order.ticket.used = false;
+      }
+
+      const course = mockBookings.find((c) => c.id === order.courseId);
+      if (course) {
+        course.status = 'upcoming';
+        course.settled = false;
+
+        const trainer = mockTrainers.find((t) => t.id === course.trainerId);
+        if (trainer) {
+          const schedule = trainer.schedule.find((s) => s.date === course.date);
+          if (schedule) {
+            const slot = schedule.timeSlots.find((s) => s.startTime === course.startTime);
+            if (slot) {
+              slot.available = false;
+            }
+          }
+        }
+      }
+
+      return { order, course: course! };
     }
-    return post<Order>(`/orders/${orderId}/pay`, { method });
+    return post<{ order: Order; course: Course }>(`/orders/${orderId}/pay`, data);
   },
 
   getOrderById: async (id: string): Promise<Order> => {
     if (USE_MOCK) {
       await delay(200);
-      return {
-        id,
-        orderNo: `ORD${id}`,
-        userId: 'u1',
-        courseId: 'c1',
-        amount: 399,
-        status: 'paid',
-        ticket: {
-          id: `t${id}`,
-          orderId: id,
-          code: `TK${id}`,
-          qrCode: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=TK${id}`,
-          validFrom: new Date().toISOString(),
-          validTo: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-          used: false
-        },
-        createdAt: new Date().toISOString()
-      };
+      const order = mockOrders.find((o) => o.id === id);
+      if (!order) throw new Error('Order not found');
+      return order;
     }
     return get<Order>(`/orders/${id}`);
+  },
+
+  getOrderByCourseId: async (courseId: string): Promise<Order> => {
+    if (USE_MOCK) {
+      await delay(200);
+      const order = mockOrders.find((o) => o.courseId === courseId);
+      if (!order) throw new Error('Order not found');
+      return order;
+    }
+    return get<Order>(`/orders/by-course/${courseId}`);
   }
 };
 
@@ -323,12 +417,49 @@ export const userApi = {
   uploadEffect: async (data: Partial<EffectUpload>): Promise<EffectUpload> => {
     if (USE_MOCK) {
       await delay(500);
-      return {
+      const effectId = `e${Date.now()}`;
+
+      const result: EffectUpload = {
         ...data,
-        id: String(Date.now()),
+        id: effectId,
         userId: 'u1',
         createdAt: new Date().toISOString()
       } as EffectUpload;
+
+      const trainer = mockTrainers.find((t) => t.id === data.trainerId);
+      if (trainer) {
+        trainer.reviewCount = (trainer.reviewCount || 0) + 1;
+        const oldRating = trainer.starRating || 0;
+        const oldCount = trainer.reviewCount - 1;
+        trainer.starRating = Math.round(((oldRating * oldCount + (data.rating || 5)) / trainer.reviewCount) * 10) / 10;
+        trainer.satisfactionRate = Math.min(100, Math.round(((trainer.satisfactionRate || 90) * oldCount + ((data.rating || 5) >= 4 ? 100 : 0)) / trainer.reviewCount));
+      }
+
+      const newReview: TrainerReview = {
+        id: `r${Date.now()}`,
+        userId: 'u1',
+        userName: mockUser.nickname || '用户',
+        userAvatar: mockUser.avatar || '',
+        trainerId: data.trainerId || '',
+        rating: data.rating || 5,
+        content: data.description || '',
+        createdAt: new Date().toISOString(),
+        courseType: '一对一课程',
+        behaviorImproved: data.behaviorImproved || false
+      };
+      mockTrainerReviews.unshift(newReview);
+
+      const pointsEarned = (data.rating || 5) >= 4 ? 100 : 50;
+      mockUser.memberPoints = (mockUser.memberPoints || 0) + pointsEarned;
+
+      const progress = mockUser.memberUpgradeProgress;
+      if (progress) {
+        const courseProgress = Math.min(100, (progress.coursesCompleted / progress.coursesNeeded) * 100);
+        const amountProgress = Math.min(100, (progress.amountSpent / progress.amountNeeded) * 100);
+        progress.progressPercent = Math.round(Math.max(courseProgress, amountProgress));
+      }
+
+      return result;
     }
     return post<EffectUpload>('/user/effects', data);
   },

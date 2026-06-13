@@ -135,7 +135,45 @@
   font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
   color: $color-primary;
+}
+
+.ratingInputRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: $spacing-md;
   margin-top: $spacing-md;
+}
+
+.ratingInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+  background: $color-bg-hover;
+  padding: $spacing-sm $spacing-md;
+  border-radius: $radius-card;
+  border: 2rpx solid $color-primary-light;
+}
+
+.ratingInput {
+  width: 100rpx;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+  text-align: center;
+  background: transparent;
+  border: none;
+}
+
+.ratingInputUnit {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.ratingHint {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: $spacing-sm;
 }
 
 .improvementToggle {

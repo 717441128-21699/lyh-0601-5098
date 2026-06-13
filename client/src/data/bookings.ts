@@ -18,6 +18,7 @@ export const mockBookings: Course[] = [
     price: 399,
     location: '朝阳区建国路88号SOHO现代城',
     ticketCode: 'TK20240615001',
+    orderId: 'o1',
     ownerConfirmed: false,
     settled: false,
     createdAt: '2024-06-10T10:00:00Z'
@@ -39,6 +40,7 @@ export const mockBookings: Course[] = [
     price: 199,
     meetingUrl: 'https://meeting.example.com/room/123456',
     ticketCode: 'TK20240616002',
+    orderId: 'o2',
     ownerConfirmed: false,
     settled: false,
     createdAt: '2024-06-11T15:00:00Z'
@@ -60,6 +62,7 @@ export const mockBookings: Course[] = [
     price: 399,
     location: '朝阳区建国路88号SOHO现代城',
     ticketCode: 'TK20240610001',
+    orderId: 'o3',
     checkInTime: '2024-06-10T09:55:00Z',
     trainingRecord: {
       id: 'tr1',
@@ -115,6 +118,7 @@ export const mockBookings: Course[] = [
     price: 499,
     meetingUrl: 'https://meeting.example.com/room/789012',
     ticketCode: 'TK20240608001',
+    orderId: 'o4',
     checkInTime: '2024-06-08T14:58:00Z',
     trainingRecord: {
       id: 'tr2',

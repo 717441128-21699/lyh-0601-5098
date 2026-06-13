@@ -15,11 +15,14 @@ import {
 } from '@/types/course';
 import StarRating from '@/components/StarRating';
 import { courseApi, orderApi } from '@/services/api';
+import { useUserStore } from '@/store/useUserStore';
 import { formatDate } from '@/utils';
 
 const CourseDetailPage: React.FC = () => {
   const router = useRouter();
   const courseId = router.params.id as string;
+
+  const userStore = useUserStore();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(false);
@@ -120,6 +123,52 @@ const CourseDetailPage: React.FC = () => {
     }
   };
 
+  const handleUploadEffect = () => {
+    Taro.navigateTo({ url: `/pages/effect-upload/index?courseId=${courseId}` });
+  };
+
+  const handlePay = async () => {
+    if (!course) return;
+    try {
+      const order = await orderApi.getOrderByCourseId(course.id);
+      Taro.showModal({
+        title: '确认支付',
+        content: `${course.trainerName} - ${CourseTypeLabels[course.type]}课程\n需支付 ¥${order.amount}`,
+        success: async (res) => {
+          if (res.confirm) {
+            try {
+              await orderApi.payOrder(order.id, { paymentMethod: 'wechat' });
+              Taro.showToast({ title: '支付成功', icon: 'success' });
+              loadCourseDetail();
+            } catch (payError) {
+              console.error('[CourseDetail] pay error:', payError);
+              Taro.showToast({ title: '支付失败，请重试', icon: 'none' });
+            }
+          }
+        }
+      });
+    } catch (error) {
+      console.error('[CourseDetail] handlePay error:', error);
+      Taro.showToast({ title: '获取订单失败', icon: 'none' });
+    }
+  };
+
+  const handleSubmitHomework = async () => {
+    if (!course?.homework) return;
+    try {
+      const tasks = course.homework.tasks.map((task) => ({
+        id: task.id,
+        completed: homeworkChecked[task.id] || false
+      }));
+      await courseApi.submitHomework(course.id, { tasks });
+      Taro.showToast({ title: '作业提交成功', icon: 'success' });
+      loadCourseDetail();
+    } catch (error) {
+      console.error('[CourseDetail] submitHomework error:', error);
+      Taro.showToast({ title: '提交失败，请重试', icon: 'none' });
+    }
+  };
+
   const handleConfirmCourse = async () => {
     if (!course) return;
     Taro.showModal({
@@ -129,8 +178,9 @@ const CourseDetailPage: React.FC = () => {
         if (res.confirm) {
           try {
             await courseApi.confirmCourse(course.id);
-            Taro.showToast({ title: '已确认', icon: 'success' });
+            Taro.showToast({ title: '已确认完成', icon: 'success' });
             loadCourseDetail();
+            userStore.fetchUser();
           } catch (error) {
             console.error('[CourseDetail] handleConfirmCourse error:', error);
             Taro.showToast({ title: '操作失败', icon: 'none' });
@@ -138,31 +188,6 @@ const CourseDetailPage: React.FC = () => {
         }
       }
     });
-  };
-
-  const handleUploadEffect = () => {
-    Taro.navigateTo({ url: `/pages/effect-upload/index?courseId=${courseId}` });
-  };
-
-  const handlePay = async () => {
-    if (!course) return;
-    try {
-      const order = await orderApi.getOrderById(course.id);
-      Taro.showModal({
-        title: '确认支付',
-        content: `需要支付 ¥${order.amount}`,
-        success: async (res) => {
-          if (res.confirm) {
-            await orderApi.payOrder(order.id, { paymentMethod: 'wechat' });
-            Taro.showToast({ title: '支付成功', icon: 'success' });
-            loadCourseDetail();
-          }
-        }
-      });
-    } catch (error) {
-      console.error('[CourseDetail] handlePay error:', error);
-      Taro.showToast({ title: '支付失败', icon: 'none' });
-    }
   };
 
   const handleJoinMeeting = () => {
@@ -524,10 +549,23 @@ const CourseDetailPage: React.FC = () => {
                 <Text className={styles.deadlineText}>
                   截止日期: {formatDate(course.homework.deadline)}
                 </Text>
-                <View className={styles.actionBtn}>
-                  <Text>提交作业</Text>
-                </View>
+                {course.homework.completed ? (
+                  <View className={`${styles.actionBtn} ${styles.completedBtn}`}>
+                    <Text>✓ 已完成</Text>
+                  </View>
+                ) : (
+                  <View className={styles.actionBtn} onClick={handleSubmitHomework}>
+                    <Text>提交作业</Text>
+                  </View>
+                )}
               </View>
+              {course.homework.completed && course.homework.completedAt && (
+                <View className={styles.completedAtRow}>
+                  <Text className={styles.completedAtText}>
+                    🎉 完成时间: {formatDate(course.homework.completedAt)}
+                  </Text>
+                </View>
+              )}
             </View>
           </View>
         )}

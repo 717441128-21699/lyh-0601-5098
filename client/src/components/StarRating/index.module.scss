@@ -11,8 +11,20 @@
   align-items: center;
 }
 
+.starWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  &.clickable {
+    cursor: pointer;
+  }
+}
+
 .star {
   line-height: 1;
+  user-select: none;
 }
 
 .fullStar {
@@ -26,6 +38,23 @@
 
 .emptyStar {
   color: $color-border;
+}
+
+.starFill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.halfHitArea {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 50%;
+  height: 100%;
+  z-index: 1;
 }
 
 .small {

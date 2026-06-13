@@ -337,6 +337,26 @@
   border-radius: $radius-button;
   font-size: $font-size-sm;
   font-weight: $font-weight-medium;
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.8;
+  }
+
+  &.completedBtn {
+    background: $color-success;
+  }
+}
+
+.completedAtRow {
+  margin-top: $spacing-sm;
+  text-align: center;
+}
+
+.completedAtText {
+  font-size: $font-size-sm;
+  color: $color-success-dark;
+  font-weight: $font-weight-medium;
 }
 
 .priceRow {

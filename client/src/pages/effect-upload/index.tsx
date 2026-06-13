@@ -5,18 +5,22 @@ import {
   Textarea,
   ScrollView,
   Image,
-  Video
+  Video,
+  Input
 } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { Course } from '@/types';
 import StarRating from '@/components/StarRating';
 import { courseApi, userApi } from '@/services/api';
+import { useUserStore } from '@/store/useUserStore';
 import { formatDate } from '@/utils';
 
 const EffectUploadPage: React.FC = () => {
   const router = useRouter();
   const courseId = router.params.courseId as string;
+
+  const userStore = useUserStore();
 
   const [course, setCourse] = useState<Course | null>(null);
   const [loading, setLoading] = useState(false);
@@ -24,6 +28,7 @@ const EffectUploadPage: React.FC = () => {
   const [beforeVideo, setBeforeVideo] = useState('');
   const [afterVideo, setAfterVideo] = useState('');
   const [rating, setRating] = useState(5);
+  const [ratingInput, setRatingInput] = useState('5.0');
   const [behaviorImproved, setBehaviorImproved] = useState<boolean | null>(null);
   const [description, setDescription] = useState('');
 
@@ -70,6 +75,29 @@ const EffectUploadPage: React.FC = () => {
     }
   };
 
+  const handleRatingInputChange = (e: any) => {
+    const val = e.detail.value;
+    setRatingInput(val);
+    const num = parseFloat(val);
+    if (!isNaN(num) && num >= 0 && num <= 5) {
+      setRating(Math.round(num * 10) / 10);
+    }
+  };
+
+  const handleRatingInputBlur = () => {
+    let num = parseFloat(ratingInput);
+    if (isNaN(num) || num < 0) num = 0;
+    if (num > 5) num = 5;
+    num = Math.round(num * 10) / 10;
+    setRating(num);
+    setRatingInput(num.toFixed(1));
+  };
+
+  const handleStarChange = (newRating: number) => {
+    setRating(newRating);
+    setRatingInput(newRating.toFixed(1));
+  };
+
   const canSubmit = rating > 0 && behaviorImproved !== null && description.trim().length > 0;
 
   const handleSubmit = async () => {
@@ -88,6 +116,8 @@ const EffectUploadPage: React.FC = () => {
       };
 
       await userApi.uploadEffect(effectData);
+
+      userStore.fetchUser();
 
       Taro.showToast({ title: '上传成功', icon: 'success' });
       setTimeout(() => {
@@ -203,13 +233,28 @@ const EffectUploadPage: React.FC = () => {
             <Text className={styles.ratingLabel}>请为本次训练打分</Text>
             <StarRating
               rating={rating}
-              size={48}
+              size="large"
               interactive
-              onChange={setRating}
+              onChange={handleStarChange}
+              precision={0.5}
+              showText={false}
             />
-            <Text className={styles.ratingValue}>
-              {rating === 5 ? '非常满意' : rating === 4 ? '满意' : rating === 3 ? '一般' : rating === 2 ? '不满意' : '非常不满意'}
-            </Text>
+            <View className={styles.ratingInputRow}>
+              <Text className={styles.ratingValue}>
+                {rating >= 4.5 ? '非常满意' : rating >= 3.5 ? '满意' : rating >= 2.5 ? '一般' : rating >= 1.5 ? '不满意' : '非常不满意'}
+              </Text>
+              <View className={styles.ratingInputWrapper}>
+                <Input
+                  className={styles.ratingInput}
+                  type="digit"
+                  value={ratingInput}
+                  onInput={handleRatingInputChange}
+                  onBlur={handleRatingInputBlur}
+                />
+                <Text className={styles.ratingInputUnit}>分</Text>
+              </View>
+            </View>
+            <Text className={styles.ratingHint}>可手动输入0-5之间的分数，精确到0.1</Text>
           </View>
         </View>
 
