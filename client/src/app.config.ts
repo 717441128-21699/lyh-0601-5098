@@ -4,6 +4,7 @@ export default defineAppConfig({
     'pages/trainers/index',
     'pages/booking/index',
     'pages/mine/index',
+    'pages/orders/index',
     'pages/pet-detail/index',
     'pages/pet-add/index',
     'pages/trainer-detail/index',

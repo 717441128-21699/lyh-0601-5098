@@ -14,7 +14,8 @@ import {
   CourseStatusLabels
 } from '@/types/course';
 import StarRating from '@/components/StarRating';
-import { courseApi, orderApi } from '@/services/api';
+import Tag from '@/components/Tag';
+import { courseApi, orderApi, trainerApi } from '@/services/api';
 import { useUserStore } from '@/store/useUserStore';
 import { formatDate } from '@/utils';
 
@@ -28,6 +29,8 @@ const CourseDetailPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState({ hours: 0, minutes: 0, seconds: 0 });
   const [homeworkChecked, setHomeworkChecked] = useState<Record<string, boolean>>({});
+  const [trainerReviews, setTrainerReviews] = useState<any[]>([]);
+  const [trainerAvgRating, setTrainerAvgRating] = useState(0);
 
   useEffect(() => {
     loadCourseDetail();
@@ -72,6 +75,17 @@ const CourseDetailPage: React.FC = () => {
           checked[t.id] = t.completed;
         });
         setHomeworkChecked(checked);
+      }
+
+      if (result.trainerId) {
+        try {
+          const reviews = await trainerApi.getTrainerReviews(result.trainerId, 1, 5);
+          setTrainerReviews(reviews.list || []);
+          const detail = await trainerApi.getTrainerDetail(result.trainerId);
+          setTrainerAvgRating(detail.starRating || 0);
+        } catch (e) {
+          console.error('[CourseDetail] load trainer reviews error:', e);
+        }
       }
     } catch (error) {
       console.error('[CourseDetail] loadCourseDetail error:', error);
@@ -594,6 +608,89 @@ const CourseDetailPage: React.FC = () => {
             </View>
           </View>
         )}
+
+        <View className={styles.section}>
+          <View className={styles.sectionTitle}>
+            <Text className={styles.sectionTitleIcon}>⭐</Text>
+            <Text>课后反馈</Text>
+            <Text className={styles.sectionSubTitle}>
+              训导师综合评分
+            </Text>
+          </View>
+
+          <View className={styles.feedbackSummary}>
+            <View className={styles.avgRatingCol}>
+              <Text className={styles.avgRatingValue}>{trainerAvgRating.toFixed(1)}</Text>
+              <View className={styles.avgRatingStars}>
+                <StarRating
+                  rating={trainerAvgRating}
+                  size="small"
+                  showText={false}
+                />
+              </View>
+              <Text className={styles.avgRatingLabel}>
+                共 {trainerReviews.length} 条评价
+              </Text>
+            </View>
+            <View className={styles.feedbackActions}>
+              <View
+                className={styles.bookAgainBtn}
+                onClick={() => {
+                  Taro.navigateTo({
+                    url: `/pages/trainer-detail/index?id=${course.trainerId}`
+                  });
+                }}
+              >
+                <Text>再次预约</Text>
+              </View>
+            </View>
+          </View>
+
+          {trainerReviews.length > 0 && (
+            <View className={styles.recentReviews}>
+              <Text className={styles.recentReviewsTitle}>最近评价</Text>
+              <View className={styles.reviewList}>
+                {trainerReviews.slice(0, 3).map((review: any) => (
+                  <View key={review.id} className={styles.reviewItem}>
+                    <View className={styles.reviewItemHeader}>
+                      <Image
+                        className={styles.reviewItemAvatar}
+                        src={review.userAvatar}
+                        mode="aspectFill"
+                      />
+                      <View className={styles.reviewItemInfo}>
+                        <Text className={styles.reviewItemName}>{review.userName}</Text>
+                        <View className={styles.reviewItemMeta}>
+                          <StarRating
+                            rating={review.rating}
+                            size="small"
+                            showText={false}
+                          />
+                          <Text className={styles.reviewItemDate}>
+                            {new Date(review.createdAt).toLocaleDateString('zh-CN')}
+                          </Text>
+                        </View>
+                      </View>
+                    </View>
+                    <Text className={styles.reviewItemContent} numberOfLines={2}>
+                      {review.content}
+                    </Text>
+                  </View>
+                ))}
+              </View>
+              <View
+                className={styles.viewAllReviews}
+                onClick={() => {
+                  Taro.navigateTo({
+                    url: `/pages/trainer-detail/index?id=${course.trainerId}`
+                  });
+                }}
+              >
+                <Text>查看全部评价 ›</Text>
+              </View>
+            </View>
+          )}
+        </View>
 
         <View className={styles.section}>
           <View className={styles.sectionTitle}>

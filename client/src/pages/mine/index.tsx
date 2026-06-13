@@ -58,7 +58,13 @@ const MinePage: React.FC = () => {
       url: '/pages/membership/index'
     },
     {
-      icon: '📅',
+      icon: '�',
+      title: '订单中心',
+      desc: '查看所有课程订单和票据',
+      url: '/pages/orders/index'
+    },
+    {
+      icon: '�📅',
       title: '我的预约',
       desc: '查看和管理课程预约',
       url: '/pages/booking/index'

@@ -2,12 +2,18 @@ import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
-  ScrollView
+  ScrollView,
+  Image
 } from '@tarojs/components';
+import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { User, MemberLevel, MemberBenefit } from '@/types';
+import { User, MemberLevel, MemberBenefit, EffectUpload } from '@/types';
 import { MemberLevelLabels } from '@/types/user';
 import { useUserStore } from '@/store/useUserStore';
+import { userApi, trainerApi } from '@/services/api';
+import StarRating from '@/components/StarRating';
+import Tag from '@/components/Tag';
+import EmptyState from '@/components/EmptyState';
 
 const levelIcons: Record<MemberLevel, string> = {
   normal: '🥉',
@@ -42,10 +48,38 @@ const MembershipPage: React.FC = () => {
   const userStore = useUserStore();
   const user = userStore.user;
   const [loading, setLoading] = useState(false);
+  const [effects, setEffects] = useState<EffectUpload[]>([]);
+  const [trainerMap, setTrainerMap] = useState<Record<string, any>>({});
+  const [effectsLoading, setEffectsLoading] = useState(false);
 
   useEffect(() => {
     userStore.fetchUser();
+    loadEffects();
   }, []);
+
+  const loadEffects = async () => {
+    setEffectsLoading(true);
+    try {
+      const list = await userApi.getMyEffects();
+      setEffects(list);
+
+      const trainerIds = [...new Set(list.map((e) => e.trainerId))];
+      const map: Record<string, any> = {};
+      for (const tid of trainerIds) {
+        try {
+          const trainer = await trainerApi.getTrainerDetail(tid);
+          map[tid] = trainer;
+        } catch (e) {
+          console.error('[Membership] load trainer error:', tid, e);
+        }
+      }
+      setTrainerMap(map);
+    } catch (error) {
+      console.error('[Membership] loadEffects error:', error);
+    } finally {
+      setEffectsLoading(false);
+    }
+  };
 
   const userBenefits = useMemo(() => {
     if (!user) return allBenefits.map(b => ({ ...b, available: false }));
@@ -259,6 +293,94 @@ const MembershipPage: React.FC = () => {
                 小提示：上传训练效果视频可获得额外积分奖励，每完成1节课程可获得10-20积分，积分可用于兑换免费复训机会哦！
               </Text>
             </View>
+          )}
+        </View>
+
+        <View className={styles.section}>
+          <View className={styles.sectionTitle}>
+            <Text className={styles.sectionTitleIcon}>⭐</Text>
+            <Text>我的评价</Text>
+            <Text className={styles.sectionSubTitle}>
+              共 {effects.length} 条评价
+            </Text>
+          </View>
+
+          {effectsLoading ? (
+            <View className={styles.loadingSmall}>
+              <Text>加载中...</Text>
+            </View>
+          ) : effects.length > 0 ? (
+            <View className={styles.reviewList}>
+              {effects.map((effect) => {
+              const trainer = trainerMap[effect.trainerId];
+              const pointsEarned = effect.rating >= 4 ? 100 : effect.rating >= 2 ? 50 : 20;
+              return (
+                <View
+                  key={effect.id}
+                  className={styles.reviewCard}
+                  onClick={() => {
+                    if (effect.trainerId && Taro.navigateTo({
+                      url: `/pages/trainer-detail/index?id=${effect.trainerId}`
+                    }));
+                  }}
+                >
+                  <View className={styles.reviewHeader}>
+                    <View className={styles.reviewTrainer}>
+                      {trainer ? (
+                        <>
+                          <Image
+                            className={styles.reviewTrainerAvatar}
+                            src={trainer.avatar}
+                            mode="aspectFill"
+                          />
+                          <View className={styles.reviewTrainerInfo}>
+                            <Text className={styles.reviewTrainerName}>{trainer.name}</Text>
+                            <Text className={styles.reviewTrainerSpec}>
+                              {trainer.specialties?.slice(0, 2).join(' · ') || ''}
+                            </Text>
+                          </View>
+                        </>
+                      ) : (
+                        <Text className={styles.reviewTrainerName}>训导师</Text>
+                      )}
+                    </View>
+                    <View className={styles.reviewRatingRow}>
+                      <StarRating
+                        rating={effect.rating}
+                        size="small"
+                        showText={false}
+                      />
+                      <Tag
+                        type="warning"
+                        size="small"
+                        text={`+${pointsEarned}积分"
+                      />
+                    </View>
+                  </View>
+                  <Text className={styles.reviewContent} numberOfLines={3}>
+                    {effect.description}
+                  </Text>
+                  <View className={styles.reviewFooter}>
+                    <Text className={styles.reviewDate}>
+                      {new Date(effect.createdAt).toLocaleDateString('zh-CN')}
+                    </Text>
+                    {effect.behaviorImproved && (
+                      <Tag
+                        type="success"
+                        size="small"
+                        text="✓ 行为有改善"
+                      />
+                    )}
+                  </View>
+                </View>
+              );
+            })}
+            </View>
+          ) : (
+            <EmptyState
+              title="暂无评价"
+              description="完成课程后上传训练效果，分享您的评价可以帮助其他主人选择合适的训导师"
+            />
           )}
         </View>
       </ScrollView>

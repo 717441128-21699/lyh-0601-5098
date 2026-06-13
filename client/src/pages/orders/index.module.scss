@@ -1,0 +1,231 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: $color-bg;
+}
+
+.tabBar {
+  display: flex;
+  align-items: center;
+  background: $color-bg-white;
+  padding: 0 $spacing-md;
+  border-bottom: 2rpx solid $color-border-light;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tabItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-md 0;
+  position: relative;
+
+  &.active {
+    .tabText {
+      color: $color-primary;
+      font-weight: $font-weight-semibold;
+    }
+  }
+}
+
+.tabText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.tabIndicator {
+  position: absolute;
+  bottom: 0;
+  width: 48rpx;
+  height: 6rpx;
+  background: $color-primary;
+  border-radius: 3rpx;
+}
+
+.content {
+  flex: 1;
+  padding: $spacing-md;
+  box-sizing: border-box;
+}
+
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xxl;
+  color: $color-text-tertiary;
+}
+
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.orderCard {
+  background: $color-bg-white;
+  border-radius: $radius-card;
+  padding: $spacing-md;
+  box-shadow: $shadow-base;
+}
+
+.orderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: $spacing-sm;
+  border-bottom: 2rpx dashed $color-border-light;
+}
+
+.orderNo {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.orderBody {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md 0;
+  gap: $spacing-md;
+}
+
+.trainerAvatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.orderInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  min-width: 0;
+}
+
+.trainerName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.courseInfo {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.petInfo {
+  font-size: $font-size-sm;
+  color: $color-primary;
+}
+
+.timeInfo {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.priceCol {
+  flex-shrink: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.price {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.ticketRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-sm $spacing-md;
+  background: $color-success-light;
+  border-radius: $radius-card;
+  margin-bottom: $spacing-sm;
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.ticketLabel {
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+  color: $color-success-dark;
+}
+
+.ticketCode {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-success-dark;
+  font-family: monospace;
+}
+
+.ticketAction {
+  font-size: $font-size-sm;
+  color: $color-success-dark;
+  font-weight: $font-weight-medium;
+}
+
+.orderFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-sm;
+  border-top: 2rpx solid $color-border-light;
+}
+
+.createTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.footerActions {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.payBtn {
+  padding: $spacing-xs $spacing-md;
+  background: $color-primary;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.detailBtn {
+  padding: $spacing-xs $spacing-md;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+
+  &:active {
+    background: $color-border-light;
+  }
+}
+
+.refundBtn {
+  padding: $spacing-xs $spacing-md;
+  background: $color-info-light;
+  color: $color-info-dark;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+}

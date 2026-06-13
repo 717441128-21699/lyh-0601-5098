@@ -15,6 +15,7 @@ import {
   mockTrainers,
   mockBookings,
   mockOrders,
+  mockEffects,
   mockUser,
   mockTrainerReviews,
   mockDashboardStats
@@ -322,6 +323,16 @@ export const courseApi = {
 };
 
 export const orderApi = {
+  getUserOrders: async (): Promise<Order[]> => {
+    if (USE_MOCK) {
+      await delay(300);
+      return [...mockOrders].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+    return get<Order[]>('/orders');
+  },
+
   createOrder: async (data: Partial<Order>): Promise<Order> => {
     if (USE_MOCK) {
       await delay(300);
@@ -439,6 +450,16 @@ export const userApi = {
     return get<User>('/user/info');
   },
 
+  getMyEffects: async (): Promise<EffectUpload[]> => {
+    if (USE_MOCK) {
+      await delay(300);
+      return [...mockEffects].sort(
+        (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+    }
+    return get<EffectUpload[]>('/user/effects');
+  },
+
   uploadEffect: async (data: Partial<EffectUpload>): Promise<EffectUpload> => {
     if (USE_MOCK) {
       await delay(500);
@@ -450,6 +471,8 @@ export const userApi = {
         userId: 'u1',
         createdAt: new Date().toISOString()
       } as EffectUpload;
+
+      mockEffects.unshift(result);
 
       const trainer = mockTrainers.find((t) => t.id === data.trainerId);
       if (trainer) {
