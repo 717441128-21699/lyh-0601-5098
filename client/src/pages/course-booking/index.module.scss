@@ -1,0 +1,386 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 160rpx;
+}
+
+.section {
+  background: $color-bg-card;
+  margin-top: $spacing-md;
+  padding: $spacing-lg $page-padding;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionTitleIcon {
+  font-size: $font-size-xl;
+}
+
+.trainerCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+}
+
+.trainerAvatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: $color-bg-card;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  image {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.trainerInfo {
+  flex: 1;
+}
+
+.trainerName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.trainerTitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.petSelector {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.petList {
+  display: flex;
+  gap: $spacing-md;
+  overflow-x: auto;
+  padding: $spacing-sm 0;
+
+  @include scroll-x-container;
+}
+
+.petItem {
+  @include scroll-x-item(auto);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+  margin-right: $spacing-sm;
+
+  &.selected {
+    border-color: $color-primary;
+    background: $color-primary-light;
+  }
+}
+
+.petAvatar {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: $color-bg-card;
+  overflow: hidden;
+  margin-bottom: $spacing-sm;
+
+  image {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.petName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+}
+
+.petBreed {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.addPetBtn {
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: $color-primary-light;
+  color: $color-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xxl;
+  margin-bottom: $spacing-sm;
+}
+
+.typeSelector {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.typeOption {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-lg;
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+
+  &.selected {
+    border-color: $color-primary;
+    background: $color-primary-light;
+  }
+}
+
+.typeIcon {
+  font-size: $font-size-xxl;
+  margin-bottom: $spacing-sm;
+}
+
+.typeName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.typeDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.typePrice {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-top: $spacing-sm;
+}
+
+.modeSelector {
+  display: flex;
+  gap: $spacing-md;
+}
+
+.modeOption {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: $spacing-lg;
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+  border: 3rpx solid transparent;
+  transition: all $transition-base;
+
+  &.selected {
+    border-color: $color-primary;
+    background: $color-primary-light;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.modeIcon {
+  font-size: $font-size-xxl;
+  margin-bottom: $spacing-sm;
+}
+
+.modeName {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.modeDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.infoValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.notesTextarea {
+  width: 100%;
+  min-height: 160rpx;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  border: none;
+  resize: none;
+}
+
+.priceBreakdown {
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+  padding: $spacing-lg;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+    padding-top: $spacing-md;
+    border-top: 1rpx dashed $color-divider;
+  }
+}
+
+.priceLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.priceValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.totalPrice {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.discountTag {
+  padding: $spacing-xs $spacing-sm;
+  background: $color-success-light;
+  color: $color-success;
+  border-radius: $radius-button;
+  font-size: $font-size-xs;
+  margin-left: $spacing-sm;
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc($spacing-md + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
+.totalSection {
+  display: flex;
+  align-items: baseline;
+  gap: $spacing-xs;
+}
+
+.totalLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.totalAmount {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.payBtn {
+  width: 280rpx;
+  height: 88rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    opacity: 0.9;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-xxl;
+  color: $color-text-tertiary;
+}
+
+.memberBenefit {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  padding: $spacing-md;
+  background: $color-warning-light;
+  border-radius: $radius-card;
+  margin-top: $spacing-md;
+}
+
+.memberIcon {
+  font-size: $font-size-xl;
+}
+
+.memberText {
+  font-size: $font-size-sm;
+  color: $color-warning-dark;
+  flex: 1;
+}

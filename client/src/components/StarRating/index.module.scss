@@ -1,0 +1,46 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  display: flex;
+  align-items: center;
+  gap: $spacing-xs;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+}
+
+.star {
+  line-height: 1;
+}
+
+.fullStar {
+  color: $color-warning;
+}
+
+.halfStar {
+  color: $color-warning;
+  opacity: 0.5;
+}
+
+.emptyStar {
+  color: $color-border;
+}
+
+.small {
+  font-size: $font-size-sm;
+}
+
+.medium {
+  font-size: $font-size-md;
+}
+
+.large {
+  font-size: $font-size-lg;
+}
+
+.ratingText {
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}

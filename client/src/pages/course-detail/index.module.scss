@@ -1,0 +1,502 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 140rpx;
+}
+
+.statusBanner {
+  padding: $spacing-xl $page-padding;
+  text-align: center;
+  color: $color-text-white;
+}
+
+.statusUpcoming {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+}
+
+.statusInProgress {
+  background: linear-gradient(135deg, $color-secondary 0%, $color-secondary-light 100%);
+}
+
+.statusCompleted {
+  background: linear-gradient(135deg, $color-success 0%, $color-success-light 100%);
+}
+
+.statusPending {
+  background: linear-gradient(135deg, $color-warning 0%, $color-warning-light 100%);
+}
+
+.statusCancelled {
+  background: linear-gradient(135deg, $color-error 0%, $color-error-light 100%);
+}
+
+.statusTitle {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-sm;
+}
+
+.statusDesc {
+  font-size: $font-size-md;
+  opacity: 0.9;
+}
+
+.section {
+  background: $color-bg-card;
+  margin-top: $spacing-md;
+  padding: $spacing-lg $page-padding;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-lg;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.sectionTitleIcon {
+  font-size: $font-size-xl;
+}
+
+.ticketCard {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: $radius-card;
+  padding: $spacing-lg;
+  color: $color-text-white;
+  position: relative;
+  overflow: hidden;
+
+  &::before, &::after {
+    content: '';
+    position: absolute;
+    width: 40rpx;
+    height: 40rpx;
+    background: $color-bg-page;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  &::before { left: -20rpx; }
+  &::after { right: -20rpx; }
+}
+
+.ticketHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+  padding-bottom: $spacing-md;
+  border-bottom: 2rpx dashed rgba(255, 255, 255, 0.3);
+}
+
+.ticketTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+}
+
+.ticketCode {
+  font-family: monospace;
+  font-size: $font-size-sm;
+  background: rgba(255, 255, 255, 0.2);
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-button;
+}
+
+.ticketInfo {
+  display: flex;
+  justify-content: space-between;
+}
+
+.ticketInfoItem {
+  text-align: center;
+}
+
+.ticketInfoLabel {
+  font-size: $font-size-xs;
+  opacity: 0.8;
+  margin-bottom: $spacing-xs;
+}
+
+.ticketInfoValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+}
+
+.trainerCard {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  padding: $spacing-md;
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+}
+
+.trainerAvatar {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  background: $color-bg-card;
+  overflow: hidden;
+  flex-shrink: 0;
+
+  image {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.trainerInfo {
+  flex: 1;
+}
+
+.trainerName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.trainerTitle {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.infoRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.infoValue {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: $spacing-xs;
+  padding: $spacing-xs $spacing-sm;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+}
+
+.tagPrimary {
+  background: $color-primary-light;
+  color: $color-primary;
+}
+
+.tagSuccess {
+  background: $color-success-light;
+  color: $color-success;
+}
+
+.tagSecondary {
+  background: $color-secondary-light;
+  color: $color-secondary;
+}
+
+.recordContent {
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.recordText {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  line-height: 1.6;
+  margin-bottom: $spacing-md;
+}
+
+.recordList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+}
+
+.recordItem {
+  display: flex;
+  align-items: flex-start;
+  gap: $spacing-sm;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.recordItemIcon {
+  font-size: $font-size-lg;
+  flex-shrink: 0;
+}
+
+.homeworkCard {
+  background: $color-warning-light;
+  border-radius: $radius-card;
+  padding: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.homeworkTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-warning-dark;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+}
+
+.homeworkList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.homeworkTask {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: $spacing-sm;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: $radius-card;
+}
+
+.homeworkTaskContent {
+  flex: 1;
+}
+
+.homeworkTaskDesc {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  margin-bottom: $spacing-xs;
+}
+
+.homeworkTaskMeta {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.homeworkCheck {
+  width: 40rpx;
+  height: 40rpx;
+  border: 3rpx solid $color-warning;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: $spacing-md;
+
+  &.checked {
+    background: $color-success;
+    border-color: $color-success;
+  }
+}
+
+.homeworkCheckIcon {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+}
+
+.deadlineRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx dashed rgba(0, 0, 0, 0.1);
+}
+
+.deadlineText {
+  font-size: $font-size-sm;
+  color: $color-warning-dark;
+}
+
+.actionBtn {
+  padding: $spacing-sm $spacing-md;
+  background: $color-warning;
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  font-weight: $font-weight-medium;
+}
+
+.priceRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: $spacing-md 0;
+}
+
+.priceLabel {
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+}
+
+.priceValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $color-bg-card;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc($spacing-md + env(safe-area-inset-bottom));
+  display: flex;
+  gap: $spacing-md;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
+.secondaryBtn {
+  flex: 1;
+  height: 88rpx;
+  background: $color-bg-hover;
+  color: $color-text-primary;
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    opacity: 0.9;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.primaryBtn {
+  flex: 1;
+  height: 88rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  border-radius: $radius-button;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active {
+    opacity: 0.9;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+  }
+}
+
+.fullWidthBtn {
+  flex: 2;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  padding: $spacing-xxl;
+  color: $color-text-tertiary;
+}
+
+.countdown {
+  display: flex;
+  justify-content: center;
+  gap: $spacing-md;
+  margin-top: $spacing-md;
+}
+
+.countdownItem {
+  text-align: center;
+}
+
+.countdownValue {
+  width: 80rpx;
+  height: 80rpx;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-card;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  margin-bottom: $spacing-xs;
+}
+
+.countdownLabel {
+  font-size: $font-size-xs;
+  opacity: 0.8;
+}
+
+.uploadSection {
+  margin-top: $spacing-md;
+}
+
+.uploadBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-xl;
+  background: $color-bg-hover;
+  border-radius: $radius-card;
+  border: 2rpx dashed $color-primary-light;
+}
+
+.uploadIcon {
+  font-size: $font-size-xxxl;
+  margin-bottom: $spacing-sm;
+}
+
+.uploadText {
+  font-size: $font-size-md;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.uploadHint {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-top: $spacing-xs;
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xl;
+  color: $color-text-tertiary;
+}
+
+.emptyIcon {
+  font-size: $font-size-xxxl;
+  margin-bottom: $spacing-md;
+  opacity: 0.5;
+}
+
+.emptyText {
+  font-size: $font-size-md;
+}

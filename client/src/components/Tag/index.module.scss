@@ -1,0 +1,63 @@
+@use '@/styles/variables.scss' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-xs;
+  white-space: nowrap;
+
+  &.small {
+    padding: 4rpx 12rpx;
+    .text {
+      font-size: $font-size-xs;
+    }
+  }
+
+  &.medium {
+    padding: 6rpx 16rpx;
+    .text {
+      font-size: $font-size-sm;
+    }
+  }
+
+  &.default {
+    background-color: $color-bg-tag;
+    .text {
+      color: $color-primary;
+    }
+  }
+
+  &.primary {
+    background-color: $color-primary;
+    .text {
+      color: $color-text-white;
+    }
+  }
+
+  &.success {
+    background-color: rgba($color-success, 0.1);
+    .text {
+      color: $color-success;
+    }
+  }
+
+  &.warning {
+    background-color: rgba($color-warning, 0.1);
+    .text {
+      color: $color-warning;
+    }
+  }
+
+  &.error {
+    background-color: rgba($color-error, 0.1);
+    .text {
+      color: $color-error;
+    }
+  }
+}
+
+.text {
+  font-weight: $font-weight-medium;
+  line-height: 1.4;
+}
