@@ -374,7 +374,7 @@
   margin-left: auto;
   font-size: $font-size-sm;
   color: $color-text-tertiary;
-  font-weight: $font-weight-regular;
+  font-weight: $font-weight-normal;
 }
 
 .reviewList {
@@ -385,7 +385,7 @@
 }
 
 .reviewCard {
-  background: $color-bg-white;
+  background: $color-bg-card;
   border-radius: $radius-card;
   padding: $spacing-md;
   box-shadow: $shadow-base;

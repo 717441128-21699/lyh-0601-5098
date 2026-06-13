@@ -79,8 +79,8 @@ const CourseDetailPage: React.FC = () => {
 
       if (result.trainerId) {
         try {
-          const reviews = await trainerApi.getTrainerReviews(result.trainerId, 1, 5);
-          setTrainerReviews(reviews.list || []);
+          const reviews = await trainerApi.getTrainerReviews(result.trainerId);
+          setTrainerReviews(reviews);
           const detail = await trainerApi.getTrainerDetail(result.trainerId);
           setTrainerAvgRating(detail.starRating || 0);
         } catch (e) {

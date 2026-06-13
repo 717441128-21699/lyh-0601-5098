@@ -312,69 +312,71 @@ const MembershipPage: React.FC = () => {
           ) : effects.length > 0 ? (
             <View className={styles.reviewList}>
               {effects.map((effect) => {
-              const trainer = trainerMap[effect.trainerId];
-              const pointsEarned = effect.rating >= 4 ? 100 : effect.rating >= 2 ? 50 : 20;
-              return (
-                <View
-                  key={effect.id}
-                  className={styles.reviewCard}
-                  onClick={() => {
-                    if (effect.trainerId && Taro.navigateTo({
-                      url: `/pages/trainer-detail/index?id=${effect.trainerId}`
-                    }));
-                  }}
-                >
-                  <View className={styles.reviewHeader}>
-                    <View className={styles.reviewTrainer}>
-                      {trainer ? (
-                        <>
-                          <Image
-                            className={styles.reviewTrainerAvatar}
-                            src={trainer.avatar}
-                            mode="aspectFill"
-                          />
-                          <View className={styles.reviewTrainerInfo}>
-                            <Text className={styles.reviewTrainerName}>{trainer.name}</Text>
-                            <Text className={styles.reviewTrainerSpec}>
-                              {trainer.specialties?.slice(0, 2).join(' · ') || ''}
-                            </Text>
-                          </View>
-                        </>
-                      ) : (
-                        <Text className={styles.reviewTrainerName}>训导师</Text>
+                const trainer = trainerMap[effect.trainerId];
+                const pointsEarned = effect.rating >= 4 ? 100 : effect.rating >= 2 ? 50 : 20;
+                return (
+                  <View
+                    key={effect.id}
+                    className={styles.reviewCard}
+                    onClick={() => {
+                      if (effect.trainerId) {
+                        Taro.navigateTo({
+                          url: `/pages/trainer-detail/index?id=${effect.trainerId}`
+                        });
+                      }
+                    }}
+                  >
+                    <View className={styles.reviewHeader}>
+                      <View className={styles.reviewTrainer}>
+                        {trainer ? (
+                          <>
+                            <Image
+                              className={styles.reviewTrainerAvatar}
+                              src={trainer.avatar}
+                              mode="aspectFill"
+                            />
+                            <View className={styles.reviewTrainerInfo}>
+                              <Text className={styles.reviewTrainerName}>{trainer.name}</Text>
+                              <Text className={styles.reviewTrainerSpec}>
+                                {trainer.specialties?.slice(0, 2).join(' · ') || ''}
+                              </Text>
+                            </View>
+                          </>
+                        ) : (
+                          <Text className={styles.reviewTrainerName}>训导师</Text>
+                        )}
+                      </View>
+                      <View className={styles.reviewRatingRow}>
+                        <StarRating
+                          rating={effect.rating}
+                          size="small"
+                          showText={false}
+                        />
+                        <Tag
+                          type="warning"
+                          size="small"
+                          text={"+" + pointsEarned + "积分"}
+                        />
+                      </View>
+                    </View>
+                    <Text className={styles.reviewContent} numberOfLines={3}>
+                      {effect.description}
+                    </Text>
+                    <View className={styles.reviewFooter}>
+                      <Text className={styles.reviewDate}>
+                        {new Date(effect.createdAt).toLocaleDateString('zh-CN')}
+                      </Text>
+                      {effect.behaviorImproved && (
+                        <Tag
+                          type="success"
+                          size="small"
+                          text="✓ 行为有改善"
+                        />
                       )}
                     </View>
-                    <View className={styles.reviewRatingRow}>
-                      <StarRating
-                        rating={effect.rating}
-                        size="small"
-                        showText={false}
-                      />
-                      <Tag
-                        type="warning"
-                        size="small"
-                        text={`+${pointsEarned}积分"
-                      />
-                    </View>
                   </View>
-                  <Text className={styles.reviewContent} numberOfLines={3}>
-                    {effect.description}
-                  </Text>
-                  <View className={styles.reviewFooter}>
-                    <Text className={styles.reviewDate}>
-                      {new Date(effect.createdAt).toLocaleDateString('zh-CN')}
-                    </Text>
-                    {effect.behaviorImproved && (
-                      <Tag
-                        type="success"
-                        size="small"
-                        text="✓ 行为有改善"
-                      />
-                    )}
-                  </View>
-                </View>
-              );
-            })}
+                );
+              })}
             </View>
           ) : (
             <EmptyState

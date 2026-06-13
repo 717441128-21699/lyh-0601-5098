@@ -31,7 +31,7 @@ const statusTextMap: Record<OrderStatus, string> = {
 const statusColorMap: Record<OrderStatus, string> = {
   pending: 'warning',
   paid: 'success',
-  refunded: 'info',
+  refunded: 'default',
   cancelled: 'default'
 };
 
@@ -55,7 +55,7 @@ const OrdersPage: React.FC = () => {
       const map: Record<string, Course> = {};
       for (const cid of courseIds) {
         try {
-          const course = await courseApi.getCourseDetail(cid);
+          const course = await courseApi.getCourseById(cid);
           map[cid] = course;
         } catch (e) {
           console.error('[Orders] load course error:', cid, e);
